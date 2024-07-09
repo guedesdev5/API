@@ -18,3 +18,12 @@ model Categorias {
   nome   String   @unique
   descricao    String
 }
+
+model Vendedores {
+  id     String    @id @default(auto()) @map("_id") @db.ObjectId
+  nome   String   
+  username    String    @unique
+  email    String
+  senha    String
+  permissao    Int    
+}

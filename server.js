@@ -7,6 +7,24 @@ const prisma = new PrismaClient()
 const app = express()
 app.use(express.json())
 
+app.get('/login/:username/:senha', async (req, res) => {
+    try {
+        const todosVendedores = await prisma.vendedores.findMany();
+
+       
+            res.status(200).json({
+                message: 'Login encontrado com sucesso!',
+                status: 0
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: 'Erro ao procurar login.',
+            status: 1
+        });
+    }
+});
+
 //post categorias
 app.post('/categorias', async (req, res) => {
     try {

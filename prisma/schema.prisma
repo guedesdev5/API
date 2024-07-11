@@ -13,17 +13,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Categorias
 model Categorias {
-  id     String    @id @default(auto()) @map("_id") @db.ObjectId
-  nome   String   @unique
-  descricao    String
+  id        Int        @id @map("_id")
+  nome      String     @unique
+  descricao String?
+  Produtos  Produtos[]
 }
 
+// Vendedores
 model Vendedores {
-  id     String    @id @default(auto()) @map("_id") @db.ObjectId
-  nome   String   
-  username    String    @unique
-  email    String
-  senha    String
-  permissao    Int    
+  id        Int    @id @map("_id")
+  nome      String
+  username  String @unique
+  email     String
+  senha     String
+  permissao Int
+}
+
+// Fornecedores
+model Fornecedores {
+  id       Int        @id @map("_id")
+  nome     String
+  telefone String?
+  email    String?
+  endereco String?
+  Produtos Produtos[]
+}
+
+// Produtos
+model Produtos {
+  id         Int           @id @map("_id")
+  nome       String
+  descricao  String?
+  preco      Float?
+  quantidade Int
+  categoria  Categorias?   @relation(fields: [id_categoria], references: [id])
+  fornecedor Fornecedores? @relation(fields: [id_fornecedor], references: [id])
+
+  id_categoria  Int?
+  id_fornecedor Int?
 }

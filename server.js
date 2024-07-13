@@ -96,6 +96,7 @@ app.get('/apiGerenciamento/categorias', async (req, res) => {
     
 })
 
+
 app.post('/apiGerenciamento/vendedores', async (req, res) => {
     try {
         await prisma.vendedores.create({
@@ -162,13 +163,28 @@ app.delete('/apiGerenciamento/vendedores/:id', async (req, res) => {
     }
 })
 
+//get categorias
 app.get('/apiGerenciamento/vendedores', async (req, res) => {
     try{
-        const vendedores = await prisma.vendedores.findMany()
-        res.status(200).json({message: 'Sucesso ao acessar dados',
-            status: 0,
-            data:vendedores
-        })
+        if(req.query) {
+            const vendedores = await prisma.vendedores.findMany({
+                where: {
+                    id: req.query.id,
+                    username: req.query.username
+                }
+            })
+            res.status(200).json({message: 'Sucesso ao acessar dados',
+                status: 0,
+                data:vendedores
+            })
+        } else {
+            const vendedores = await prisma.vendedores.findMany()
+            res.status(200).json({message: 'Sucesso ao acessar dados',
+                status: 0,
+                data:vendedores
+            })
+        }
+        
     } catch (error){
         console.error(error);
         res.status(500).json({ error: 'Erro ao pegar dados das categoria.',

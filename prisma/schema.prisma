@@ -1,56 +1,63 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-// Categorias
-model Categorias {
-  id        Int        @id @map("_id")
-  nome      String     @unique
-  descricao String?
-  Produtos  Produtos[]
+model categorias {
+  id        Int        @id @default(autoincrement())
+  nome      String     @db.VarChar(100)
+  descricao String?    @db.Text
+  produtos  produtos[]
 }
 
-// Vendedores
-model Vendedores {
-  id        Int    @id @map("_id")
-  nome      String
-  username  String @unique
-  email     String
-  senha     String
+model fornecedores {
+  id       Int        @id @default(autoincrement())
+  nome     String     @db.VarChar(100)
+  telefone String?    @db.VarChar(20)
+  email    String?    @db.VarChar(100)
+  endereco String?    @db.Text
+  produtos produtos[]
+}
+
+model vendedores {
+  id        Int      @id @default(autoincrement())
+  nome      String   @db.VarChar(100)
+  username  String   @db.VarChar(20)
+  email     String   @unique(map: "email") @db.VarChar(100)
+  senha     String?  @db.VarChar(50)
   permissao Int
+  vendas    vendas[]
 }
 
-// Fornecedores
-model Fornecedores {
-  id       Int        @id @map("_id")
-  nome     String
-  telefone String?
-  email    String?
-  endereco String?
-  Produtos Produtos[]
-}
-
-// Produtos
-model Produtos {
-  id         Int           @id @map("_id")
-  nome       String
-  descricao  String?
-  preco      Float?
-  quantidade Int
-  categoria  Categorias?   @relation(fields: [id_categoria], references: [id])
-  fornecedor Fornecedores? @relation(fields: [id_fornecedor], references: [id])
-
+model produtos {
+  id            Int           @id
+  nome          String        @db.VarChar(100)
+  descricao     String?       @db.Text
+  preco         Float?        @db.Float
+  quantidade    Int
   id_categoria  Int?
   id_fornecedor Int?
+  categoria     categorias?   @relation(fields: [id_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_1")
+  fornecedor    fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_2")
+  vendas        vendas[]
+
+  @@index([id_categoria], map: "id_categoria")
+  @@index([id_fornecedor], map: "id_fornecedor")
+}
+
+model vendas {
+  id                 Int         @id @default(autoincrement())
+  data_venda         DateTime?   @db.DateTime(0)
+  quantidade_vendida Int
+  id_produto         Int?
+  id_vendedor        Int?
+  vendedor           vendedores? @relation(fields: [id_vendedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendas_ibfk_1")
+  produto            produtos?   @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendas_ibfk_2")
+
+  @@index([id_produto], map: "id_produto")
+  @@index([id_vendedor], map: "id_vendedor")
 }

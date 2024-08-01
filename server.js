@@ -445,7 +445,8 @@ app.post('/apiGerenciamento/vendas', async (req, res) => {
         } else {
             console.error(error);
             res.status(500).json({ error: 'Erro ao inserir os dados.',
-                status: 1
+                status: 1,
+                erro: error
              });
         }
     }

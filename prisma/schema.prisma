@@ -51,7 +51,7 @@ model produtos {
 
 model vendas {
   id                 Int         @id @default(autoincrement())
-  data_venda         DateTime?   @db.DateTime(0)
+  data_venda         String     @db.VarChar(255)
   quantidade_vendida Int
   id_produto         Int?
   id_vendedor        Int?

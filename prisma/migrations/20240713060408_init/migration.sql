@@ -47,7 +47,7 @@ CREATE TABLE `Produto` (
 -- CreateTable
 CREATE TABLE `Venda` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `data_venda` DATE NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `data_venda` VARCHAR(255) NOT NULL,
     `quantidade_vendida` INTEGER NOT NULL,
     `id_produto` INTEGER NULL,
     `id_vendedor` INTEGER NULL,

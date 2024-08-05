@@ -55,6 +55,24 @@ CREATE TABLE `Venda` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `entradas` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `data_entrada` VARCHAR(255) NOT NULL,
+    `quantidade_entrada` INTEGER NOT NULL,
+    `id_produto` INTEGER NULL,
+    `id_fornecedor` INTEGER NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `entradas` ADD CONSTRAINT `entradas_ibfk_1` FOREIGN KEY (`id_produto`) REFERENCES `produtos`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE `entradas` ADD CONSTRAINT `entradas_ibfk_2` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedores`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
 -- AddForeignKey
 ALTER TABLE `Produto` ADD CONSTRAINT `Produto_id_categoria_fkey` FOREIGN KEY (`id_categoria`) REFERENCES `Categoria`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 

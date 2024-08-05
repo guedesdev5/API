@@ -21,6 +21,7 @@ model fornecedores {
   email    String?    @db.VarChar(100)
   endereco String?    @db.Text
   produtos produtos[]
+  entradas entradas[]
 }
 
 model vendedores {
@@ -44,6 +45,7 @@ model produtos {
   categoria     categorias?   @relation(fields: [id_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_1")
   fornecedor    fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_2")
   vendas        vendas[]
+  entradas      entradas[]
 
   @@index([id_categoria], map: "id_categoria")
   @@index([id_fornecedor], map: "id_fornecedor")
@@ -51,7 +53,7 @@ model produtos {
 
 model vendas {
   id                 Int         @id @default(autoincrement())
-  data_venda         String     @db.VarChar(255)
+  data_venda         String      @db.VarChar(255)
   quantidade_vendida Int
   id_produto         Int?
   id_vendedor        Int?
@@ -60,4 +62,17 @@ model vendas {
 
   @@index([id_produto], map: "id_produto")
   @@index([id_vendedor], map: "id_vendedor")
+}
+
+model entradas {
+  id                 Int           @id @default(autoincrement())
+  data_entrada       String        @db.VarChar(255)
+  quantidade_entrada Int
+  id_produto         Int?
+  id_fornecedor      Int?
+  fornecedor         fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_2")
+  produto            produtos?     @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_1")
+
+  @@index([id_produto], map: "id_produto")
+  @@index([id_fornecedor], map: "id_fornecedor")
 }

@@ -460,10 +460,7 @@ app.put('/apiGerenciamento/vendas/:id', async (req, res) => {
                 id: parseInt(req.params.id, 10)
             },
             data: {
-                data_venda: req.body.data_venda,
                 quantidade_vendida: req.body.quantidade_vendida,
-                id_produto: req.body.id_produto,
-                id_vendedor: req.body.id_vendedor
             }
         })
         res.status(201).json({message: 'Dados atualizados!',

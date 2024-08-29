@@ -40,6 +40,8 @@ model produtos {
   descricao     String?       @db.Text
   preco         Float?        @db.Float
   quantidade    Int
+  tipo_produto  String?       @db.VarChar(100)
+  nome_fornecedor  String?       @db.VarChar(100)
   id_categoria  Int?
   id_fornecedor Int?
   categoria     categorias?   @relation(fields: [id_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_1")
@@ -55,6 +57,8 @@ model vendas {
   id                 Int         @id @default(autoincrement())
   data_venda         String      @db.VarChar(255)
   quantidade_vendida Int
+  nome_produto         String      @db.VarChar(255)
+  nome_vendedor         String      @db.VarChar(255)
   id_produto         Int?
   id_vendedor        Int?
   vendedor           vendedores? @relation(fields: [id_vendedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendas_ibfk_1")
@@ -70,8 +74,8 @@ model entradas {
   quantidade_entrada Int
   id_produto         Int?
   id_fornecedor      Int?
-  fornecedor         fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_2")
   produto            produtos?     @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_1")
+  fornecedor         fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_2")
 
   @@index([id_produto], map: "id_produto")
   @@index([id_fornecedor], map: "id_fornecedor")

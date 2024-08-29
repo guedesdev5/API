@@ -315,6 +315,20 @@ app.get('/apiGerenciamento/fornecedores', async (req, res) => {
 //post produtos
 app.post('/apiGerenciamento/produtos', async (req, res) => {
     try {
+        const categoria = await prisma.categorias.findUnique({
+            where: { id: req.body.id_categoria },
+            select: { nome: true }
+        });
+
+        const fornecedor = await prisma.fornecedores.findUnique({
+            where: { id: req.body.id_fornecedor },
+            select: { nome: true }
+        });
+
+        if (!categoria || !fornecedor) {
+            return res.status(404).json({ error: 'Categoria ou fornecedor não encontrados.' });
+        }
+
         await prisma.produtos.create({
             data: {
                 id: req.body.id,
@@ -322,22 +336,27 @@ app.post('/apiGerenciamento/produtos', async (req, res) => {
                 descricao: req.body.descricao,
                 preco: req.body.preco,
                 quantidade: req.body.quantidade,
+                tipo_produto: categoria.nome,
+                nome_fornecedor: fornecedor.nome,
                 id_categoria: req.body.id_categoria,
                 id_fornecedor: req.body.id_fornecedor,
-
             },
         });
-        res.status(201).json({message: 'Dados inseridos corretamente',
+
+        res.status(201).json({
+            message: 'Dados inseridos corretamente',
             status: 0
         });
     } catch (error) {
-        if (error.code === 'P2002' && error.meta.target === 'Categorias_nome_key') {
-            res.status(400).json({ error: 'Nome da categoria já existe.' });
+        if (error.code === 'P2002') {
+            // Adapte a verificação do código de erro conforme necessário
+            res.status(400).json({ error: 'Dados conflitantes.' });
         } else {
             console.error(error);
-            res.status(500).json({ error: 'Erro ao inserir os dados.',
+            res.status(500).json({
+                error: 'Erro ao inserir os dados.',
                 status: 1
-             });
+            });
         }
     }
 });
@@ -428,12 +447,27 @@ app.get('/apiGerenciamento/produtos', async (req, res) => {
 //post vendas
 app.post('/apiGerenciamento/vendas', async (req, res) => {
     try {
+        const produto = await prisma.produtos.findUnique({
+            where: { id: req.body.id_produto },
+            select: { nome: true }
+        });
+
+        const vendedor = await prisma.vendedores.findUnique({
+            where: { id: req.body.id_vendedor },
+            select: { nome: true }
+        });
+
+        if (!produto || !vendedor) {
+            return res.status(404).json({ error: 'Produto ou vendedor não encontrados.' });
+        }
         await prisma.vendas.create({
             data: {
                 data_venda: req.body.data_venda,
                 quantidade_vendida: req.body.quantidade_vendida,
                 id_produto: req.body.id_produto,
-                id_vendedor: req.body.id_vendedor
+                id_vendedor: req.body.id_vendedor,
+                nome_produto: produto.nome,
+                nome_vendedor: vendedor.nome
             },
         });
         res.status(201).json({message: 'Dados inseridos corretamente',

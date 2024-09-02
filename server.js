@@ -1,5 +1,6 @@
 import express from 'express'
-import { PrismaClient } from '@prisma/client'
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 
 
 const prisma = new PrismaClient()
@@ -363,30 +364,64 @@ app.post('/apiGerenciamento/produtos', async (req, res) => {
 
 //put produtos
 app.put('/apiGerenciamento/produtos/:id', async (req, res) => { 
-    try {
-        await prisma.produtos.update({
-            where: {
-                id: parseInt(req.params.id, 10)
-            },
-            data: {
-                id: req.body.id,
-                nome: req.body.nome,
-                descricao: req.body.descricao,
-                preco: req.body.preco,
-                quantidade: req.body.quantidade,
-                id_categoria: req.body.id_categoria,
-                id_fornecedor: req.body.id_fornecedor
-            }
-        })
-        res.status(201).json({message: 'Dados atualizados!',
-            status: 0
-        })
-    }catch (error){
-        console.error(error);
-            res.status(500).json({ error: 'Erro ao atualizar os dados.',
-                status: 1
-             });
-    }   
+
+    if (req.body.quantidade_venda_excluida != null){
+        try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: parseInt(req.params.id, 10)
+                },
+            });
+            const novaQuantidade = produtoAtual.quantidade + int(req.body.quantidade_venda_excluida);
+    
+            await prisma.produtos.update({
+                where: {
+                    id: parseInt(req.params.id, 10)
+                },
+                data: {
+                    quantidade: novaQuantidade,
+                }
+            });
+            res.status(201).json({message: 'Dados da exclusão excluidso!',
+                status: 0
+            })
+    
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar os dados.',
+                    status: 1
+                 });
+        }
+        
+    }else{
+
+        try {
+
+            await prisma.produtos.update({
+                where: {
+                    id: parseInt(req.params.id, 10)
+                },
+                data: {
+                    id: req.body.id,
+                    nome: req.body.nome,
+                    descricao: req.body.descricao,
+                    preco: req.body.preco,
+                    quantidade: req.body.quantidade,
+                    id_categoria: req.body.id_categoria,
+                    id_fornecedor: req.body.id_fornecedor
+                }
+            })
+            res.status(201).json({message: 'Dados atualizassdos!',
+                status: 0
+            })
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar os dados.',
+                    status: 1
+                 });
+        }   
+    }
+    
 })
 
 
@@ -489,6 +524,7 @@ app.post('/apiGerenciamento/vendas', async (req, res) => {
 // put vendas
 app.put('/apiGerenciamento/vendas/:id', async (req, res) => { 
     try {
+        
         await prisma.vendas.update({
             where: {
                 id: parseInt(req.params.id, 10)

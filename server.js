@@ -365,35 +365,6 @@ app.post('/apiGerenciamento/produtos', async (req, res) => {
 //put produtos
 app.put('/apiGerenciamento/produtos/:id', async (req, res) => { 
 
-    if (req.body.quantidade_venda_excluida != null){
-        try{
-            const produtoAtual = await prisma.produtos.findUnique({
-                where: {
-                    id: parseInt(req.params.id, 10)
-                },
-            });
-            const novaQuantidade = produtoAtual.quantidade + int(req.body.quantidade_venda_excluida);
-    
-            await prisma.produtos.update({
-                where: {
-                    id: parseInt(req.params.id, 10)
-                },
-                data: {
-                    quantidade: novaQuantidade,
-                }
-            });
-            res.status(201).json({message: 'Dados da exclusão excluidso!',
-                status: 0
-            })
-    
-        }catch (error){
-            console.error(error);
-                res.status(500).json({ error: 'Erro ao atualizar os dados.',
-                    status: 1
-                 });
-        }
-        
-    }else{
 
         try {
 
@@ -420,9 +391,46 @@ app.put('/apiGerenciamento/produtos/:id', async (req, res) => {
                     status: 1
                  });
         }   
-    }
+    
     
 })
+
+
+
+
+
+
+app.put('/apiGerenciamento/produtosEX/:id', async (req, res) => { 
+
+    try{
+        const produtoAtual = await prisma.produtos.findUnique({
+            where: {
+                id: parseInt(req.params.id, 10)
+            },
+        });
+        const novaQuantidade = produtoAtual.quantidade + parseInt(req.body.quantidade_venda_excluida, 10);
+        await prisma.produtos.update({
+            where: {
+                id: parseInt(req.params.id, 10)
+            },
+            data: {
+                quantidade: novaQuantidade,
+            }
+        });
+        res.status(201).json({message: 'Dados da exclusão excluidso!',
+            status: 0
+        })
+    
+    }catch (error){
+        console.error(error);
+            res.status(500).json({ error: 'Erro ao atualizar os dados.d',
+                status: 1
+             });
+    }
+
+
+})
+
 
 
 //delete produtos

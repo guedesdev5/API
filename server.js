@@ -603,6 +603,206 @@ app.get('/apiGerenciamento/vendas', async (req, res) => {
     }    
 })
 
+//##############################################
 
+//post entradas
+app.post('/apiGerenciamento/entradas', async (req, res) => {
+    try {
+        const produto = await prisma.produtos.findUnique({
+            where: { id: req.body.id_produto },
+            select: { nome: true }
+        });
+
+        const fornecedor = await prisma.fornecedores.findUnique({
+            where: { id: req.body.id_fornecedor },
+            select: { nome: true }
+        });
+
+        if (!produto || !fornecedor) {
+            return res.status(404).json({ error: 'Produto ou fornecedores não encontrados.' });
+        }
+        await prisma.entradas.create({
+            data: {
+                data_entrada: req.body.data_entrada,
+                quantidade_entrada: req.body.quantidade_entrada,
+                id_produto: req.body.id_produto,
+                id_fornecedor: req.body.id_fornecedor,
+                nome_produto: produto.nome,
+                nome_fornecedor: fornecedor.nome
+            },
+        });
+
+        //Atualização quantidade de produtos
+        try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: req.body.id_produto
+                },
+            });
+            const novaQuantidade = produtoAtual.quantidade + req.body.quantidade_entrada;
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade,
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+
+
+        res.status(201).json({message: 'Dados inseridos corretamente',
+            status: 0
+        }); 
+
+    } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Erro ao inserir os dados.',
+                status: 1,
+                erro: error
+             });
+    }
+});
+
+//get entradas
+app.get('/apiGerenciamento/entradas', async (req, res) => {
+    try{
+        if(req.query.id) {
+            const entrada = await prisma.entradas.findMany({
+                where: {
+                    id: parseInt(req.query.id, 10)
+                }
+            })
+            res.status(200).json({message: 'Sucesso ao acessar dados',
+                status: 0,
+                data:entrada
+            })
+        } else {
+            const entrada = await prisma.entradas.findMany()
+            res.status(200).json({message: 'Sucesso ao acessar dados',
+                status: 0,
+                data:entrada
+            })
+        }
+        
+    } catch (error){
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao pegar dados da venda.', error,
+            status: 1
+         });
+    }    
+})
+
+//delete vendas
+app.delete('/apiGerenciamento/entradas/:id/:id_produto/:quantidade_entrada', async (req, res) => {
+    
+    try{
+        await prisma.entradas.delete({
+            where: {
+                id: parseInt(req.params.id, 10)
+            }
+        })
+
+          //Atualização quantidade de produtos
+          try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: parseInt(req.params.id_produto, 10)
+                },
+            });
+            const novaQuantidade = produtoAtual.quantidade - req.params.quantidade_entrada;
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+
+        res.status(201).json({ message: "Entrada deletada com sucesso!",
+            status: 0
+        })
+    } catch (error){
+        console.error(error);
+            res.status(500).json({ error: 'Erro ao deletar categoria.',
+                status: 1
+             });
+    }
+})
+
+
+// put entrdas
+app.put('/apiGerenciamento/entradas/:id/:id_produto', async (req, res) => { 
+    try {
+        const entrada = await prisma.entradas.findMany({
+            where: {
+                id: parseInt(req.params.id, 10)
+            },
+            select: {
+                quantidade_entrada: true
+            }
+        });
+
+        await prisma.entradas.update({
+            where: {
+                id: parseInt(req.params.id, 10)
+            },
+            data: {
+                quantidade_entrada: req.body.quantidade_entrada,
+            }
+        })
+
+         //Atualização quantidade de produtos
+         try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: parseInt(req.params.id_produto, 10)
+                },
+            });
+            const novaQuantidade = (produtoAtual.quantidade -  entrada[0].quantidade_entrada) + req.body.quantidade_entrada;
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+
+
+        res.status(201).json({message: 'Dados atualizados!',
+            status: 0
+        })
+    }catch (error){
+        console.error(error);
+            res.status(500).json({ error: 'Erro ao atualizar os dados.',
+                status: 1
+             });
+    }   
+})
 
 app.listen(8500, () => console.log("API no ar........"))

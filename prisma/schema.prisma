@@ -72,6 +72,8 @@ model entradas {
   id                 Int           @id @default(autoincrement())
   data_entrada       String        @db.VarChar(255)
   quantidade_entrada Int
+  nome_produto       String        @db.VarChar(255)  // Novo campo adicionado
+  nome_fornecedor    String        @db.VarChar(255)  // Novo campo adicionado
   id_produto         Int?
   id_fornecedor      Int?
   produto            produtos?     @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_1")

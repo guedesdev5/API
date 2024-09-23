@@ -513,6 +513,34 @@ app.post('/apiGerenciamento/vendas', async (req, res) => {
                 nome_vendedor: vendedor.nome
             },
         });
+
+
+        //Atualização quantidade de produtos
+        try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: req.body.id_produto
+                },
+            });
+            const novaQuantidade = produtoAtual.quantidade - req.body.quantidade_vendida;
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade,
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+
+
         res.status(201).json({message: 'Dados inseridos corretamente',
             status: 0
         });
@@ -530,9 +558,21 @@ app.post('/apiGerenciamento/vendas', async (req, res) => {
 });
 
 // put vendas
-app.put('/apiGerenciamento/vendas/:id', async (req, res) => { 
+app.put('/apiGerenciamento/vendas/:id/:id_produto', async (req, res) => { 
+    
+    
     try {
         
+        const venda = await prisma.vendas.findMany({
+            where: {
+                id: parseInt(req.params.id, 10)
+                },
+                select: {
+                    quantidade_vendida: true
+                }
+            });
+
+
         await prisma.vendas.update({
             where: {
                 id: parseInt(req.params.id, 10)
@@ -541,6 +581,34 @@ app.put('/apiGerenciamento/vendas/:id', async (req, res) => {
                 quantidade_vendida: req.body.quantidade_vendida,
             }
         })
+
+
+          //Atualização quantidade de produtos
+          try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: parseInt(req.params.id_produto, 10)
+                },
+            });
+            const novaQuantidade = (produtoAtual.quantidade -  venda[0].quantidade_vendida) + req.body.quantidade_vendida;
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+
+
         res.status(201).json({message: 'Dados atualizados!',
             status: 0
         })

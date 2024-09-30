@@ -590,7 +590,7 @@ app.put('/apiGerenciamento/vendas/:id/:id_produto', async (req, res) => {
                     id: parseInt(req.params.id_produto, 10)
                 },
             });
-            const novaQuantidade = (produtoAtual.quantidade -  venda[0].quantidade_vendida) + req.body.quantidade_vendida;
+            const novaQuantidade = (produtoAtual.quantidade +  venda[0].quantidade_vendida) - req.body.quantidade_vendida;
             await prisma.produtos.update({
                 where: {
                     id: produtoAtual.id
@@ -622,7 +622,7 @@ app.put('/apiGerenciamento/vendas/:id/:id_produto', async (req, res) => {
 
 
 //delete vendas
-app.delete('/apiGerenciamento/vendas/:id', async (req, res) => {
+app.delete('/apiGerenciamento/vendas/:id/:id_produto/:quantidade', async (req, res) => {
     
     try{
         await prisma.vendas.delete({
@@ -630,9 +630,32 @@ app.delete('/apiGerenciamento/vendas/:id', async (req, res) => {
                 id: parseInt(req.params.id, 10)
             }
         })
-        res.status(201).json({ message: "Venda deletada com sucesso!",
-            status: 0
-        })
+
+        //Atualização quantidade de produtos
+        try{
+            const produtoAtual = await prisma.produtos.findUnique({
+                where: {
+                    id: parseInt(req.params.id_produto, 10)
+                },
+            });
+            const novaQuantidade = produtoAtual.quantidade + parseInt(req.params.quantidade);
+            await prisma.produtos.update({
+                where: {
+                    id: produtoAtual.id
+                },
+                data: {
+                    quantidade: novaQuantidade
+                }
+            });
+
+        
+        }catch (error){
+            console.error(error);
+                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
+                    status: 1
+                });
+        }
+        
     } catch (error){
         console.error(error);
             res.status(500).json({ error: 'Erro ao deletar categoria.',

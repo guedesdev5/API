@@ -73,6 +73,7 @@ model entradas {
   data_entrada       String        @db.VarChar(255)
   quantidade_entrada Int
   nome_produto       String        @db.VarChar(255)  // Novo campo adicionado
+  preco              Float?        @db.Float
   nome_fornecedor    String        @db.VarChar(255)  // Novo campo adicionado
   id_produto         Int?
   id_fornecedor      Int?

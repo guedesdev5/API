@@ -349,16 +349,13 @@ app.post('/apiGerenciamento/produtos', async (req, res) => {
             status: 0
         });
     } catch (error) {
-        if (error.code === 'P2002') {
-            // Adapte a verificação do código de erro conforme necessário
-            res.status(400).json({ error: 'Dados conflitantes.' });
-        } else {
+        
             console.error(error);
             res.status(500).json({
                 error: 'Erro ao inserir os dados.',
                 status: 1
             });
-        }
+        
     }
 });
 
@@ -377,9 +374,7 @@ app.put('/apiGerenciamento/produtos/:id', async (req, res) => {
                     nome: req.body.nome,
                     descricao: req.body.descricao,
                     preco: req.body.preco,
-                    quantidade: req.body.quantidade,
-                    id_categoria: req.body.id_categoria,
-                    id_fornecedor: req.body.id_fornecedor
+                    quantidade: req.body.quantidade
                 }
             })
             res.status(201).json({message: 'Dados atualizassdos!',
@@ -545,15 +540,13 @@ app.post('/apiGerenciamento/vendas', async (req, res) => {
             status: 0
         });
     } catch (error) {
-        if (error.code === 'P2002' && error.meta.target === 'Categorias_nome_key') {
-            res.status(400).json({ error: 'Nome da categoria já existe.' });
-        } else {
+        
             console.error(error);
             res.status(500).json({ error: 'Erro ao inserir os dados.',
                 status: 1,
                 erro: error
              });
-        }
+        
     }
 });
 
@@ -623,46 +616,37 @@ app.put('/apiGerenciamento/vendas/:id/:id_produto', async (req, res) => {
 
 //delete vendas
 app.delete('/apiGerenciamento/vendas/:id/:id_produto/:quantidade', async (req, res) => {
-    
-    try{
-        await prisma.vendas.delete({
-            where: {
-                id: parseInt(req.params.id, 10)
-            }
-        })
+    const { id, id_produto, quantidade } = req.params;
 
-        //Atualização quantidade de produtos
-        try{
+    try {
+        await prisma.$transaction(async (prisma) => {
+            // Deletar venda
+            await prisma.vendas.delete({
+                where: { id: parseInt(id, 10) }
+            });
+
+            // Atualizar a quantidade do produto
             const produtoAtual = await prisma.produtos.findUnique({
-                where: {
-                    id: parseInt(req.params.id_produto, 10)
-                },
-            });
-            const novaQuantidade = produtoAtual.quantidade + parseInt(req.params.quantidade);
-            await prisma.produtos.update({
-                where: {
-                    id: produtoAtual.id
-                },
-                data: {
-                    quantidade: novaQuantidade
-                }
+                where: { id: parseInt(id_produto, 10) }
             });
 
-        
-        }catch (error){
-            console.error(error);
-                res.status(500).json({ error: 'Erro ao atualizar quantidade do produto',
-                    status: 1
-                });
-        }
-        
-    } catch (error){
+            const novaQuantidade = produtoAtual.quantidade + parseInt(quantidade, 10);
+
+            await prisma.produtos.update({
+                where: { id: produtoAtual.id },
+                data: { quantidade: novaQuantidade }
+            });
+        });
+
+        res.status(200).json({ message: 'Venda deletada e quantidade do produto atualizada com sucesso',
+            status: 0
+         });
+    } catch (error) {
         console.error(error);
-            res.status(500).json({ error: 'Erro ao deletar categoria.',
-                status: 1
-             });
+        res.status(500).json({ error: 'Erro ao deletar a venda ou atualizar o produto.', status: 1 });
     }
-})
+});
+
 
 
 //get vendas

@@ -624,14 +624,12 @@ app.delete('/apiGerenciamento/vendas/:id/:id_produto/:quantidade', async (req, r
             await prisma.vendas.delete({
                 where: { id: parseInt(id, 10) }
             });
-
             // Atualizar a quantidade do produto
             const produtoAtual = await prisma.produtos.findUnique({
                 where: { id: parseInt(id_produto, 10) }
             });
 
             const novaQuantidade = produtoAtual.quantidade + parseInt(quantidade, 10);
-
             await prisma.produtos.update({
                 where: { id: produtoAtual.id },
                 data: { quantidade: novaQuantidade }
@@ -700,6 +698,7 @@ app.post('/apiGerenciamento/entradas', async (req, res) => {
             data: {
                 data_entrada: req.body.data_entrada,
                 quantidade_entrada: req.body.quantidade_entrada,
+                preco: req.body.preco,
                 id_produto: req.body.id_produto,
                 id_fornecedor: req.body.id_fornecedor,
                 nome_produto: produto.nome,
@@ -840,6 +839,7 @@ app.put('/apiGerenciamento/entradas/:id/:id_produto', async (req, res) => {
             },
             data: {
                 quantidade_entrada: req.body.quantidade_entrada,
+                preco: req.body.preco
             }
         })
 

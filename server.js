@@ -30,7 +30,8 @@ app.post('/apiGerenciamento/categorias', async (req, res) => {
         } else {
             console.error(error);
             res.status(500).json({ error: 'Erro ao inserir os dados.',
-                status: 1
+                status: 1,
+                erro: error
              });
         }
     }
@@ -74,7 +75,8 @@ app.delete('/apiGerenciamento/categorias/:id', async (req, res) => {
     } catch (error){
         console.error(error);
             res.status(500).json({ error: 'Erro ao deletar categoria.',
-                status: 1
+                status: 1,
+                erro: error
              });
     }
 })
@@ -174,7 +176,8 @@ app.delete('/apiGerenciamento/vendedores/:id', async (req, res) => {
     } catch (error){
         console.error(error);
             res.status(500).json({ error: 'Erro ao deletar categoria.',
-                status: 1
+                status: 1,
+                erro: error
              });
     }
 })
@@ -275,7 +278,8 @@ app.delete('/apiGerenciamento/fornecedores/:id', async (req, res) => {
     } catch (error){
         console.error(error);
             res.status(500).json({ error: 'Erro ao deletar categoria.',
-                status: 1
+                status: 1,
+                erro:  error
              });
     }
 })
@@ -443,7 +447,8 @@ app.delete('/apiGerenciamento/produtos/:id', async (req, res) => {
     } catch (error){
         console.error(error);
             res.status(500).json({ error: 'Erro ao deletar categoria.',
-                status: 1
+                status: 1,
+                erro: error
              });
     }
 })
@@ -706,7 +711,6 @@ app.post('/apiGerenciamento/entradas', async (req, res) => {
             },
         });
 
-        //Atualização quantidade de produtos
         try{
             const produtoAtual = await prisma.produtos.findUnique({
                 where: {

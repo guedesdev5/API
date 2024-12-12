@@ -441,12 +441,12 @@ app.delete('/apiGerenciamento/produtos/:id', async (req, res) => {
                 id: parseInt(req.params.id, 10)
             }
         })
-        res.status(201).json({ message: "Usuário deletado com sucesso!",
+        res.status(201).json({ message: "Produto deletado com sucesso!",
             status: 0
         })
     } catch (error){
         console.error(error);
-            res.status(500).json({ error: 'Erro ao deletar categoria.',
+            res.status(500).json({ error: 'Erro ao deletar produto.',
                 status: 1,
                 erro: error
              });

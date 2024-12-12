@@ -3,23 +3,23 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model categorias {
   id        Int        @id @default(autoincrement())
   nome      String     @db.VarChar(100)
-  descricao String?    @db.Text
+  descricao String?
   produtos  produtos[]
 }
 
 model fornecedores {
   id       Int        @id @default(autoincrement())
   nome     String     @db.VarChar(100)
-  telefone String?    @db.VarChar(20)
-  email    String?    @db.VarChar(100)
-  endereco String?    @db.Text
+  telefone String?
+  email    String?
+  endereco String?
   produtos produtos[]
   entradas entradas[]
 }
@@ -28,8 +28,8 @@ model vendedores {
   id        Int      @id @default(autoincrement())
   nome      String   @db.VarChar(100)
   username  String   @db.VarChar(20)
-  email     String   @unique(map: "email") @db.VarChar(100)
-  senha     String?  @db.VarChar(50)
+  email     String   @unique
+  senha     String?
   permissao Int
   vendas    vendas[]
 }
@@ -37,49 +37,49 @@ model vendedores {
 model produtos {
   id            Int           @id
   nome          String        @db.VarChar(100)
-  descricao     String?       @db.Text
-  preco         Float?        @db.Float
+  descricao     String?
+  preco         Float?
   quantidade    Int
-  tipo_produto  String?       @db.VarChar(100)
-  nome_fornecedor  String?       @db.VarChar(100)
+  tipo_produto  String?
+  nome_fornecedor  String?
   id_categoria  Int?
   id_fornecedor Int?
-  categoria     categorias?   @relation(fields: [id_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_1")
-  fornecedor    fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "produtos_ibfk_2")
+  categoria     categorias?   @relation(fields: [id_categoria], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fornecedor    fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction)
   vendas        vendas[]
   entradas      entradas[]
 
-  @@index([id_categoria], map: "id_categoria")
-  @@index([id_fornecedor], map: "id_fornecedor")
+  @@index([id_categoria])
+  @@index([id_fornecedor])
 }
 
 model vendas {
   id                 Int         @id @default(autoincrement())
-  data_venda         String      @db.VarChar(255)
+  data_venda         DateTime
   quantidade_vendida Int
-  nome_produto         String      @db.VarChar(255)
-  nome_vendedor         String      @db.VarChar(255)
+  nome_produto       String
+  nome_vendedor      String
   id_produto         Int?
   id_vendedor        Int?
-  vendedor           vendedores? @relation(fields: [id_vendedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendas_ibfk_1")
-  produto            produtos?   @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "vendas_ibfk_2")
+  vendedor           vendedores? @relation(fields: [id_vendedor], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  produto            produtos?   @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([id_produto], map: "id_produto")
-  @@index([id_vendedor], map: "id_vendedor")
+  @@index([id_produto])
+  @@index([id_vendedor])
 }
 
 model entradas {
   id                 Int           @id @default(autoincrement())
-  data_entrada       String        @db.VarChar(255)
+  data_entrada       DateTime
   quantidade_entrada Int
-  nome_produto       String        @db.VarChar(255)  // Novo campo adicionado
-  preco              Float?        @db.Float
-  nome_fornecedor    String        @db.VarChar(255)  // Novo campo adicionado
+  nome_produto       String
+  preco              Float?
+  nome_fornecedor    String
   id_produto         Int?
   id_fornecedor      Int?
-  produto            produtos?     @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_1")
-  fornecedor         fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "entradas_ibfk_2")
+  produto            produtos?     @relation(fields: [id_produto], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fornecedor         fornecedores? @relation(fields: [id_fornecedor], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([id_produto], map: "id_produto")
-  @@index([id_fornecedor], map: "id_fornecedor")
+  @@index([id_produto])
+  @@index([id_fornecedor])
 }
